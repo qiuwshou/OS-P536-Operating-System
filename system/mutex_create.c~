@@ -1,0 +1,9 @@
+#include <xinu.h>
+struct mutex_t;
+
+syscall	mutex_create(
+	struct  mutex_t  *lock
+	)
+{
+  lock->count = 0;
+}

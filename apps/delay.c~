@@ -1,0 +1,11 @@
+//funcion defines
+#include <xinu.h>
+#include <delay.h>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+void rand_delay(int uS_max){
+  srand(time(NULL));
+  int r = rand() % uS_max + 1;
+  sleepms(r);   
+}

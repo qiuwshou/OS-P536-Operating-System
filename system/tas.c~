@@ -1,0 +1,18 @@
+/* tas.c */
+
+#include <xinu.h>
+
+/*------------------------------------------------------------------------
+ *  test and set
+ *------------------------------------------------------------------------
+ */
+syscall	tas(
+	  mutex_t* lock	
+	)
+{
+  intmask mask = disable();
+  int32 temp = lock->value;
+  *lock->value = 1;
+  restore(mask);
+  return temp;
+}

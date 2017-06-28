@@ -1,0 +1,3 @@
+1. A orphan process is a child process when its parent process terminates before the child process. A zombie process is a child process which exits but its parent process doesn't release the information of the child process without using the wait() system call.
+
+2. Exec system call replace the current process with a new program. It replaces the stack and data of the current process.

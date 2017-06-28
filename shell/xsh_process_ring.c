@@ -1,0 +1,107 @@
+
+/* xsh_process_ring.c - xsh_process_ring */
+
+#include <xinu.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <process_ring.h>
+
+/*------------------------------------------------------------------------
+ * xsh_process_ring
+ *------------------------------------------------------------------------
+ */
+
+shellcmd xsh_process_ring(int nargs, char *args[]) {
+
+  int32 NUM_PROCESS=4;//--process --rounds ---versions --help
+  int32 NUM_ROUND=5;
+  char *version = "work";
+  int32 i; 
+
+  if(nargs == 1){
+    printf("no argumnet will run as default\n");
+  }  
+  else{
+  for(i = 1; i < nargs; i=i+2){
+    if(strncmp(args[i],"--process",20) ==0  || strncmp(args[i],"-p",20) == 0){
+      NUM_PROCESS = atoi(args[i+1]);
+      //printf("Number of Process: %d", NUM_PROCESS);
+    }
+    else if(strncmp(args[i],"--rounds",20) ==0 || strncmp(args[i],"-r",20) == 0){
+      NUM_ROUND = atoi(args[i+1]);
+      //printf("Number of Rounds: %d", NUM_ROUND);
+    }
+    else if(strncmp(args[i],"--version",20) == 0 || strncmp(args[i],"-v",20) == 0){
+      version = args[i+1];
+      //printf("Version :%s", version);
+    }
+    else if(strncmp(args[i],"--help",20) == 0 || strncmp(args[i],"-h",20) == 0){
+      printf("Usage: %s\n\n", args[0]);
+      printf("Description:\n");
+      printf("\t The number of process --process or -p\n");
+      printf("\t The number of rpunds --rounds or -r\n");
+      printf("\t The version --version or -v\n");
+      printf("\t Useful help text --help or -h\n");
+    }
+    else{
+      printf("wrong argumnet type --help for information, will run as default\n");
+    }
+  }
+  }
+  int32 value[NUM_PROCESS];
+  int32 j;
+  sid32 mutex = semcreate(1);
+  char process_name[60];
+ 
+  for(j=0; j<NUM_PROCESS;j++){
+    value[j] = NUM_PROCESS * NUM_ROUND;;
+  } 
+  
+  printf("Number of Process: %d\n", NUM_PROCESS);
+  printf("Version :%s\n", version);
+  printf("Number of Rounds: %d\n", NUM_ROUND);
+
+ 
+  if(strncmp(version, "loop", 20)==0){
+    while(value[NUM_PROCESS-1] != 1){
+      for(i=0; i<NUM_ROUND; i++){
+	for(j=0; j<NUM_PROCESS;j++){
+	  sprintf(process_name,"process_%d",j);
+	  resume(create(loop,1024,20,process_name,4,j,i,value,mutex));
+	}
+      }
+    }
+  }
+  
+  if(strncmp(version, "hang", 20)==0){
+    for(i=0; i<NUM_ROUND; i++){
+      for(j=0; j<NUM_PROCESS;j++){
+        sprintf(process_name,"process_%d",j);
+        resume(create(hang,1024,20,process_name,4,j,i,value,mutex));
+      }
+    }
+  }
+
+  if(strncmp(version, "work", 20)==0){
+    
+    for(i=0; i<NUM_ROUND; i++){
+      for(j=0; j<NUM_PROCESS;j++){
+	sprintf(process_name,"process_%d",j);
+        resume(create(work,1024,20,process_name,4,j,i,value,mutex));
+      }
+    }
+  }
+
+  if(strncmp(version, "chaos", 20)==0){
+    for(i=0; i<NUM_ROUND; i++){
+      for(j=0; j<NUM_PROCESS;j++){
+        sprintf(process_name,"process_%d",j);
+        int p = rand()%20;
+	resume(create(chaos,1024,p,process_name,4,j,i,value,mutex));	
+      }
+    }
+  }
+
+  return 0;
+}

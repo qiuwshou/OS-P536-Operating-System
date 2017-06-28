@@ -1,0 +1,385 @@
+/* xsh_producer_consumer */
+
+#include <xinu.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <delay.h>
+int32 num_w, num_r,w_c, r_c;
+int max_delay;
+sid32 room, r, force;
+
+/*------------------------------------------------------------------------
+ * xsh_producer_consumer
+ *------------------------------------------------------------------------
+ */
+void reader(int32 num, int32 cyc){
+  //rand_delay(max_delay);
+  //must wait for writer to finish
+  wait(force);
+  signal(force);
+  
+  wait(r);
+  wait(room);
+  Last login: Fri Feb 17 17:09:52 on ttys000
+➜  ~ csilo
+qiuwshou@silo.soic.indiana.edu's password:
+Last login: Fri Feb 17 11:50:53 2017 from 149-159-142-24.dhcp-bl.indiana.edu
+
+
+*******************************************************************
+**   Indiana University School of Informatics and Computing      **
+**             ** For Authorized Use Only **                     **
+*******************************************************************
+**  For general SoIC computing information, please see:          **
+**      http://help.soic.indiana.edu/                            **
+**                                                               **
+**  To submit a problem report or question, please see:          **
+**      http://help.soic.indiana.edu/request                     **
+*******************************************************************
+
+
+[qiuwshou@silo ~]$ ls
+12                           jdk1.7.0_25
+A290C                        lab13
+alanwu-hanfmei-qiuwshou-a1   lab5
+alanwu-qiuwshou-thijbens-a4  lab8
+b490                         mpj-v0_38
+B534-proj                    Music
+b581                         OS-P536-F16
+bbshah-alanwu-qiuwshou-a2    p436-final
+bin                          Pictures
+c311                         project5
+cgi-pub                      Public
+chagiff-qiuwshou-p1          qiuwshou-rzpaiva-p4
+deng4-qiuwshou-p3            qiuwshou-zhouhang-p2
+Desktop                      RacketAdvanceCopy.pdf
+Documents                    s499
+Downloads                    stip-2.0-linux
+final-back                   suhgulur-akmehra-qiuwshou-a3
+git                          Templates
+graphics                     Videos
+[qiuwshou@silo ~]$ cd os
+-bash: cd: os: No such file or directory
+[qiuwshou@silo ~]$ cd OS-P536-F16/
+[qiuwshou@silo OS-P536-F16]$ ls
+apps     config  include  net       README.md  shell
+compile  device  lib      programs  reports    system
+[qiuwshou@silo OS-P536-F16]$ cd compile/
+[qiuwshou@silo compile]$ emacs ../shell/xsh_producer_consumer.c
+[qiuwshou@silo compile]$ xinu
+GNU gdb (GNU Tools for ARM Embedded Processors) 7.6.0.20140529-cvs
+Copyright (C) 2013 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "--host=i686-linux-gnu --target=arm-none-eabi".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>...
+Reading symbols from /nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/xinu...done.
+warning: File "/nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/.gdbinit" auto-loading has been declined by your `auto-load safe-path' set to "$debugdir:$datadir/auto-load".
+To enable execution of this file add
+    add-auto-load-safe-path /nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/.gdbinit
+line to your configuration file "/u/qiuwshou/.gdbinit".
+To completely disable this security protection add
+    set auto-load safe-path /
+line to your configuration file "/u/qiuwshou/.gdbinit".
+For more information about this security protection see the
+    "Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:
+    info "(gdb)Auto-loading safe path"
+    (gdb) target extended-remote:12220
+    Remote debugging using :12220
+    0x00000000 in ?? ()
+    (gdb) cont
+Continuing.
+^C
+    Program received signal SIGINT, Interrupt.
+    0x0001102c in nulluser () at ../system/initialize.c:93
+    93resume (
+	      (gdb) ^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ emacs ../shell/xsh_readers_writers.c
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+make
+Rebuilding the .defs file
+
+Loading object files to produce xinu
+	      Image Name:
+	      Created:      Fri Feb 17 17:48:35 2017
+	      Image Type:   ARM Linux Kernel Image (uncompressed)
+	      Data Size:    61440 Bytes = 60.00 kB = 0.06 MB
+	      Load Address: 0x00010000
+	      Entry Point:  0x00010000
+	      (gdb) load
+`/nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/xinu' has changed; re-reading symbols.
+Loading section .text, size 0xe000 lma 0x10000
+Loading section .data, size 0x1000 lma 0x1e000
+Start address 0x10000, load size 61440
+Transfer rate: 12000 KB/sec, 1920 bytes/write.
+(gdb) cont
+Continuing.
+^C
+Program received signal SIGINT, Interrupt.
+0x0001102c in nulluser () at ../system/initialize.c:93
+93resume (
+(gdb) ^Z
+File Edit Options Buffers Tools C Help
+ */
+void reader(int32 num, int32 cyc){
+
+  for(i=0;i<r_c;i++){
+    for(j=0;j<num_r;j++){
+      rand_delay(max_delay);
+      //must wait for writer to finish
+      wait(force);
+      signal(force);
+
+      wait(r);
+      wait(room);
+      printf("<Reader><reader number:%d><cycle number:%d>\n",j,i);
+      signal(room);
+      signal(r);
+    }
+  }
+
+}
+
+void writer(int32 num, int32 cyc){
+
+  rand_delay(max_delay);
+  wait(force);
+  wait(room);
+  printf("<Writer><writer number:%d><cycle number:%d>\n",num,cyc);
+  signal(room);
+  signal(force);
+
+    }
+  }
+}
+-UU-:**--F1  xsh_readers_writers.c   24% L43    (C/l Abbrev) ---------
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ emacs ../shell/xsh_readers_writers.c
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+make
+Rebuilding the .defs file
+/l/arm2/devtools/bin/arm-none-eabi-gcc -DARM_QEMU -mcpu=arm1176jz-s -ggdb3  -mno-unaligned-access -marm -fno-builtin -fno-stack-protector -nostdlib -c -Wall -O -DBSDURG -DVERSION=\""`cat version`"\" -I../include -o binaries/xsh_readers_writers.o ../shell/xsh_readers_writers.c
+
+Loading object files to produce xinu
+llImage Name:
+Created:      Fri Feb 17 17:51:07 2017
+Image Type:   ARM Linux Kernel Image (uncompressed)
+Data Size:    61440 Bytes = 60.00 kB = 0.06 MB
+Load Address: 0x00010000
+Entry Point:  0x00010000
+(gdb) load
+`/nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/xinu' has changed; re-reading symbols.
+	      Loading section .text, size 0xe000 lma 0x10000
+	      Loading section .data, size 0x1000 lma 0x1e000
+	      Start address 0x10000, load size 61440
+	      Transfer rate: 30000 KB/sec, 1920 bytes/write.
+	      (gdb) cont
+Continuing.
+^C
+	      Program received signal SIGINT, Interrupt.
+	      0x0001102c in nulluser () at ../system/initialize.c:93
+	      93resume (
+			(gdb) ^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ emacs ../shell/xsh_readers_writers.c
+[qiuwshou@silo compile]$ FG
+			-bash: FG: command not found
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+make
+Rebuilding the .defs file
+/l/arm2/devtools/bin/arm-none-eabi-gcc -DARM_QEMU -mcpu=arm1176jz-s -ggdb3  -mno-unaligned-access -marm -fno-builtin -fno-stack-protector -nostdlib -c -Wall -O -DBSDURG -DVERSION=\""`cat version`"\" -I../include -o binaries/xsh_readers_writers.o ../shell/xsh_readers_writers.c
+			../shell/xsh_readers_writers.c: In function 'reader':
+			../shell/xsh_readers_writers.c:25:58: error: 'j' undeclared (first use in this function)
+			printf("<Reader><reader number:%d><cycle number:%d>\n",j,i);
+                                                          ^
+			../shell/xsh_readers_writers.c:25:58: note: each undeclared identifier is reported only once for each function it appears in
+			../shell/xsh_readers_writers.c:25:60: error: 'i' undeclared (first use in this function)
+			printf("<Reader><reader number:%d><cycle number:%d>\n",j,i);
+                                                            ^
+			../shell/xsh_readers_writers.c: In function 'xsh_readers_writers':
+			../shell/xsh_readers_writers.c:64:7: error: 'i' undeclared (first use in this function)
+			for(i=0;i<r_c;i++)
+       ^
+			  ../shell/xsh_readers_writers.c:65:9: error: 'j' undeclared (first use in this function)
+			       for(j=0;j<num_r;j++)
+         ^
+				 make: *** [binaries/xsh_readers_writers.o] Error 1
+				   (gdb) ^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ emacs ../shell/xsh_readers_writers.c
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+make
+Rebuilding the .defs file
+/l/arm2/devtools/bin/arm-none-eabi-gcc -DARM_QEMU -mcpu=arm1176jz-s -ggdb3  -mno-unaligned-access -marm -fno-builtin -fno-stack-protector -nostdlib -c -Wall -O -DBSDURG -DVERSION=\""`cat version`"\" -I../include -o binaries/xsh_readers_writers.o ../shell/xsh_readers_writers.c
+				   ../shell/xsh_readers_writers.c: In function 'reader':
+				 ../shell/xsh_readers_writers.c:25:58: error: 'j' undeclared (first use in this function)
+				   printf("<Reader><reader number:%d><cycle number:%d>\n",j,i);
+                                                          ^
+			../shell/xsh_readers_writers.c:25:58: note: each undeclared identifier is reported only once for each function it appears in
+			../shell/xsh_readers_writers.c:25:60: error: 'i' undeclared (first use in this function)
+			printf("<Reader><reader number:%d><cycle number:%d>\n",j,i);
+                                                            ^
+			make: *** [binaries/xsh_readers_writers.o] Error 1
+			(gdb) ^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ emacs ../shell/xsh_readers_writers.c
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+make
+Rebuilding the .defs file
+/l/arm2/devtools/bin/arm-none-eabi-gcc -DARM_QEMU -mcpu=arm1176jz-s -ggdb3  -mno-unaligned-access -marm -fno-builtin -fno-stack-protector -nostdlib -c -Wall -O -DBSDURG -DVERSION=\""`cat version`"\" -I../include -o binaries/xsh_readers_writers.o ../shell/xsh_readers_writers.c
+
+Loading object files to produce xinu
+			Image Name:
+			Created:      Fri Feb 17 17:58:04 2017
+			Image Type:   ARM Linux Kernel Image (uncompressed)
+			Data Size:    61440 Bytes = 60.00 kB = 0.06 MB
+			Load Address: 0x00010000
+			Entry Point:  0x00010000
+			(gdb) load
+`/nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/xinu' has changed; re-reading symbols.
+Loading section .text, size 0xe000 lma 0x10000
+Loading section .data, size 0x1000 lma 0x1e000
+Start address 0x10000, load size 61440
+Transfer rate: 30000 KB/sec, 1920 bytes/write.
+(gdb) cont
+Continuing.
+w^C
+Program received signal SIGINT, Interrupt.
+_fdoprnt (fmt=0x1 "\001", ap=..., func=0x11e10 <putc>, farg=0)
+    at ../lib/fdoprnt.c:51
+51            if (c == '\0')
+(gdb) quit
+A debugging session is active.
+
+Inferior 1 [Remote target] will be killed.
+
+Quit anyway? (y or n) y
+Remote connection closed
+(gdb) quit
+[qiuwshou@silo compile]$ xinu
+GNU gdb (GNU Tools for ARM Embedded Processors) 7.6.0.20140529-cvs
+Copyright (C) 2013 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "--host=i686-linux-gnu --target=arm-none-eabi".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>...
+Reading symbols from /nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/xinu...done.
+warning: File "/nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/.gdbinit" auto-loading has been declined by your `auto-load safe-path' set to "$debugdir:$datadir/auto-load".
+To enable execution of this file add
+			add-auto-load-safe-path /nfs/nfs7/home/qiuwshou/OS-P536-F16/compile/.gdbinit
+line to your configuration file "/u/qiuwshou/.gdbinit".
+To completely disable this security protection add
+			set auto-load safe-path /
+line to your configuration file "/u/qiuwshou/.gdbinit".
+For more information about this security protection see the
+			"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:
+			info "(gdb)Auto-loading safe path"
+			(gdb) target extended-remote:12220
+			Remote debugging using :12220
+			0x00000000 in ?? ()
+			(gdb) cont
+Continuing.
+^C
+			Program received signal SIGINT, Interrupt.
+			0x0001102c in nulluser () at ../system/initialize.c:93
+			93resume (
+				  (gdb) ^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ emacs ../shell/xsh_readers_writers.c
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+target
+Continuing.
+^C
+				  Program received signal SIGINT, Interrupt.
+				  0x0001102c in nulluser () at ../system/initialize.c:93
+				  93resume (
+					    (gdb) fg
+Continuing.
+make
+^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+make
+load
+^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+^C
+					    Program received signal SIGINT, Interrupt.
+					    0x0001102c in nulluser () at ../system/initialize.c:93
+					    93resume (
+						      (gdb) ^Z
+[1]+  Stopped                 arm-none-eabi-gdb xinu
+[qiuwshou@silo compile]$ fg
+arm-none-eabi-gdb xinu
+make
+Rebuilding the .defs file
+/l/arm2/devtools/bin/arm-none-eabi-gcc -DARM_QEMU -mcpu=arm1176jz-s -ggdb3  -mno-unaligned-access -marm -fno-builtin -fno-stack-protector -nostdlib -c -Wall -O -DBSDURG -DVERSION=\""`cat version`"\" -I../include -o binaries/xsh_readers_writers.o ../shell/xsh_readers_writers.c
+
+Loading object files to produce xinu
+lImage Nam
+  printf("<Reader><reader number:%d><cycle number:%d>\n",num,cyc);
+  signal(room);
+  signal(r);  
+
+}
+
+void writer(int32 num, int32 cyc){
+  
+  rand_delay(max_delay);
+  wait(force);
+  wait(room);
+  printf("<Writer><writer number:%d><cycle number:%d>\n",num,cyc);
+  signal(room);
+  signal(force);
+
+}
+
+
+shellcmd xsh_readers_writers(int nargs, char *args[]) {
+
+  int32 j,i,x,y;
+  if(nargs == 6){
+    num_w = atoi(args[1]);
+    num_r = atoi(args[2]);
+    w_c = atoi(args[3]);  
+    r_c = atoi(args[4]);
+    max_delay = atoi(args[5]);
+  }  
+  else{
+    printf("incorrect number of argument\n");
+  }
+
+  r = semcreate(num_r);
+  room = semcreate(1);
+  force = semcreate(1);
+
+  for(i=0;i<r_c;i++){
+    for(j=0;j<num_r;j++){
+      resume(create(reader,1024,20,"reader",2,j,i));
+    }
+  }
+
+  for(x=0;x<w_c;x++){
+    for(y=0;y<num_w;y++) {
+      resume(create(writer,1024,20,"writer",2,y,x));
+    }
+  }
+  return 0;
+}

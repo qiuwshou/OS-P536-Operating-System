@@ -1,0 +1,8 @@
+#include <xinu.h>
+
+
+syscall mutex_lock(mutex_t* lock){
+
+  while(tsa(lock) == 1);
+
+}

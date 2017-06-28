@@ -1,0 +1,44 @@
+#include <xinu.h>
+#include <future.h>
+
+syscall future_set(future_t* f, int value){
+  pid32 pid = getpid();
+  if(f->mode == FUTURE_EXCLUSIVE){
+    if(f->state == FUTURE_EMPTY || f->state == FUTURE_WAITING){
+      f->value = value;
+      f->state = FUTURE_READY;
+    }
+    return OK;
+  }
+
+
+  else if(f->mode == FUTURE_SHARED){
+    if(f->state == FUTURE_EMPTY || f->state == FUTURE_WAITING){
+      f->value = value;
+      f->state = FUTURE_READY;
+      resume(f->pid);
+      return OK;
+    }
+    else{//value already set
+      return SYSERR;
+    }
+  }
+
+
+  else if(f->mode = FUTURE_QUEUE){
+    if(f->state == FUTURE_EMPTY){//no thred waiting
+      fenqueue(f->set_queue,pid);
+      suspend(pid);
+    }
+    else if(f->state = FUTURE_WAITING){//dequeue one waiting thread
+      f->pid = fdequeue(f->get_queue);
+      f->value = value;
+      f->state = FUTURE_READY;
+      resume(f->pid);
+    }
+    return OK;
+  }  
+  else{
+    return SYSERR;
+  }
+}
